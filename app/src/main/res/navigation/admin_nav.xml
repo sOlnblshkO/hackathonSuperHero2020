@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav"
+    app:startDestination="@+id/nav_admin_prof"
+    tools:ignore="UnusedNavigation">
+
+
+    <fragment
+        android:id="@+id/nav_admin_prof"
+        android:label="Профиль админа"
+        android:name="com.example.forfedorova.administrator.ui.profile.adminProf"
+        tools:layout="@layout/admin_prof_fragment"/>
+    <fragment
+        android:id="@+id/nav_admin_activ"
+        android:label="Мероприятия админа"
+        android:name="com.example.forfedorova.administrator.activities.activitiesFragment"
+        tools:layout="@layout/activities_fragment"/>
+    <fragment
+        android:id="@+id/nav_create_activ_admin"
+        tools:layout="@layout/create_activ_admin_fragment"
+        android:label="Создать мероприятие"
+        android:name="com.example.forfedorova.administrator.createActiv.create_activ_admin"/>
+</navigation>

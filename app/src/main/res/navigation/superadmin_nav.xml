@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/superadmin_nav"
+    app:startDestination="@+id/nav_super_admin_prof">
+    <fragment
+        android:id="@+id/nav_super_admin_prof"
+        android:name="com.example.forfedorova.superAdmin.ui.profile.profile.superAdminFragment"
+        android:label="Профиль суперадмина"
+        tools:layout="@layout/super_admin_fragment"
+        />
+    <fragment
+        android:id="@+id/nav_super_admin_orgs"
+        android:name="com.example.forfedorova.superAdmin.ui.profile.organizations.superAdminOrgs"
+        android:label="Организации суперадмина"
+        tools:layout="@layout/super_admin_orgs_fragment"
+        />
+    <fragment
+        android:id="@+id/nav_change_rank"
+        android:name="com.example.forfedorova.superAdmin.ui.profile.rank.changeRankFragment"
+        android:label="Поменять ранг пользователя"
+        tools:layout="@layout/change_rank_fragment"/>
+</navigation>

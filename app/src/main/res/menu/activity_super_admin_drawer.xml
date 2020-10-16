@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_super_admin_prof"
+            android:icon="@drawable/ic_profile"
+            android:title="Профиль" />
+        <item
+            android:id="@+id/nav_super_admin_orgs"
+            android:icon="@drawable/ic_orgs"
+            android:title="Организации" />
+        <item
+            android:id="@+id/nav_change_rank"
+            android:icon="@drawable/ic_change_rank"
+            android:title="Поменять ранг" />
+        <item
+            android:id="@+id/nav_exit_super_admin"
+            android:icon="@drawable/ic_logout"
+            android:title="Выход"
+            android:onClick="exitFromSuperAdmin"/>
+    </group>
+
+
+
+</menu>
