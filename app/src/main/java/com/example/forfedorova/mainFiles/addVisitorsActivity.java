@@ -49,6 +49,19 @@ public class addVisitorsActivity extends AppCompatActivity {
         addVisitorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String[] strArr = idEdit.getText().toString().split(" ");
+                String str = "";
+
+                for (String s : strArr){
+                    if (!s.equals("")){
+                        str += s + " ";
+                    }
+                }
+                str = str.substring(0, str.length() - 1);
+
+                idEdit.setText(str);
+
                 if (!idEdit.getText().toString().equals("")) {
                     new addVis().execute("addVis");
                 }
@@ -75,7 +88,6 @@ public class addVisitorsActivity extends AppCompatActivity {
                     multipartEntity.addPart("idUser", idEdit.getText().toString());
                     multipartEntity.addPart("idActiv", getIntent().getStringExtra("idActiv"));
                     httpPost.setEntity(multipartEntity);
-
                     break;
                 default:
                     break;
