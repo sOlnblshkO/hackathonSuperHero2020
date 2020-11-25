@@ -13,8 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//created by koyash
-//adel loh
+
 
 public class MultipartEntity implements HttpEntity {
 
