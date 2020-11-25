@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomStuff.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 
@@ -28,10 +29,14 @@ public class registrActivity extends AppCompatActivity {
 
     public final static String url = "http://koyash.tmweb.ru/api.php";
 
+    MyCustomDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registr);
+
+        dialog = new MyCustomDialog(registrActivity.this);
 
         signUpBtn = findViewById(R.id.signUpBtn);
         regLogEdit = findViewById(R.id.regLogEdit);
@@ -94,12 +99,14 @@ public class registrActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
+            dialog.closeDialog();
             switch (response){
                 case "0":
                     Toast.makeText(getApplicationContext(),"Такой пользователь уже зарегестрирован!", Toast.LENGTH_LONG).show();

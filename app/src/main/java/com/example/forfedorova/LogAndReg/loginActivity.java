@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.forfedorova.CustomStuff.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.administrator.adminMenuActivity;
@@ -39,12 +40,16 @@ public class loginActivity extends AppCompatActivity {
     SharedPreferences sPref;
     SharedPreferences.Editor sPrefEditor;
 
+    MyCustomDialog dialog;
+
     private static final String url = "http://koyash.tmweb.ru/api.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        dialog = new MyCustomDialog(loginActivity.this);
 
         loginEdit = findViewById(R.id.loginEdit);
         passEdit = findViewById(R.id.passEdit);
@@ -142,6 +147,7 @@ public class loginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
@@ -149,9 +155,9 @@ public class loginActivity extends AppCompatActivity {
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
             try {
+                dialog.closeDialog();
                 if (!response.equals("0")){
                     JSONObject jsonObject = new JSONObject(response);
-                    Toast.makeText(getApplicationContext(), jsonObject.toString() , Toast.LENGTH_SHORT).show();
                     if (jsonObject.get("code").equals("1")) {
                         sPrefEditor.putBoolean("loggined", true);
                         sPrefEditor.putString("name", jsonObject.get("name").toString());
@@ -179,7 +185,7 @@ public class loginActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "Такого пользователя не существует!", Toast.LENGTH_SHORT).show();
                 }
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Непредвиденная ошибка. " + e.toString(), Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }

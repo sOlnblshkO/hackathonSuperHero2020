@@ -9,11 +9,13 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomStuff.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 
@@ -32,11 +34,13 @@ public class adminRep extends AppCompatActivity {
 
     EditText admin, rep;
     Button refreshBtn;
+    MyCustomDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_rep);
+        dialog = new MyCustomDialog(adminRep.this);
         admin = findViewById(R.id.newAdminEdit);
         rep = findViewById(R.id.newRepEdit);
         refreshBtn = findViewById(R.id.refreshBtn);
@@ -49,6 +53,8 @@ public class adminRep extends AppCompatActivity {
                     new setAdmRep().execute("setRep");
             }
         });
+        dialog.createDialog();
+        new setAdmRep().execute("getAdminRep");
     }
 
     String response;
@@ -79,6 +85,10 @@ public class adminRep extends AppCompatActivity {
                     multipartEntity.addPart("loginRep", rep.getText().toString());;
                     httpPost.setEntity(multipartEntity);
                     break;
+                case "getAdminRep":
+                    multipartEntity.addPart("code", "getAdminRep");
+                    multipartEntity.addPart("idOrg", getIntent().getStringExtra("idOrg"));
+                    httpPost.setEntity(multipartEntity);
                 default:
                     break;
             }
@@ -105,6 +115,7 @@ public class adminRep extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
+            dialog.closeDialog();
             switch (action) {
                 case "setAdmin":
                     try {
@@ -132,6 +143,23 @@ public class adminRep extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     break;
+                case "getAdminRep":
+                    try{
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.get("success").equals("1")){
+                            rep.setText(jsonObject.get("repLogin").toString());
+                            admin.setText(jsonObject.get("adminLogin").toString());
+                        } else {
+                            Toast toast = new Toast(adminRep.this);
+                            toast.setText("Непредвиденная ошибка, попробуйте позже");
+                            toast.show();
+                            finish();
+                        }
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
             }
 
         }
