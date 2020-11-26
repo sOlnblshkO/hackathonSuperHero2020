@@ -1,19 +1,24 @@
 package com.example.forfedorova.mainFiles;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.JsonReader;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomStuff.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.administrator.adminMenuActivity;
@@ -29,11 +34,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DateFormat;
 
 public class createActivityForOrgActivity extends AppCompatActivity {
 
     TextView name, desc;
-    EditText admin, rep, activName, activDesc;
+    EditText admin, rep, activName, activDesc, startTime, endTime;
     Button createActiv;
     boolean byAdmin = false;
 
@@ -42,10 +48,14 @@ public class createActivityForOrgActivity extends AppCompatActivity {
     String response;
     private static final String url = "http://koyash.tmweb.ru/api.php";
 
+    MyCustomDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_for_org);
+
+        dialog = new MyCustomDialog(createActivityForOrgActivity.this);
 
         sPref = getSharedPreferences("app", MODE_PRIVATE);
 
@@ -59,6 +69,8 @@ public class createActivityForOrgActivity extends AppCompatActivity {
         activName = findViewById(R.id.activityNameEdit);
         activDesc = findViewById(R.id.activityDescEdit);
         rep = findViewById(R.id.activityPreEdit);
+        startTime = findViewById(R.id.startTimeEdit);
+        endTime = findViewById(R.id.endTimeEdit);
 
         createActiv = findViewById(R.id.createActivBtn);
         createActiv.setOnClickListener(createActivity);
@@ -70,7 +82,77 @@ public class createActivityForOrgActivity extends AppCompatActivity {
             admin.setText(sPref.getString("login", "noLogin!!!"));
         }
 
+        startTime.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                createDateDialog("start");
+            }
+        });
+
+        endTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createDateDialog("end");
+            }
+        });
+
     }
+
+    public void createDateDialog(final String dateType){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(createActivityForOrgActivity.this);
+        View dialogView = LayoutInflater.from(createActivityForOrgActivity.this).inflate(R.layout.date_custom_dialog, null);
+        builder.setView(dialogView);
+
+        final CalendarView activCal = dialogView.findViewById(R.id.activityCalendar);
+
+        final String[] finalDate = {""};
+
+        activCal.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                int mYear = year;
+                int mMonth = month;
+                int mDay = dayOfMonth;
+                String selectedDate = new StringBuilder().append(mYear)
+                        .append("-").append(mMonth + 1).append("-").append(mDay)
+                        .toString();
+                finalDate[0] = selectedDate;
+            }
+        });
+
+        AlertDialog dateDialog = null;
+        Button chooseDialog = dialogView.findViewById(R.id.chooseDateBtn);
+
+        dateDialog = builder.create();
+        dateDialog.show();
+        final AlertDialog finalDateDialog = dateDialog;
+        chooseDialog.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                switch (dateType) {
+                    case ("start"):
+                        startTime.setText(finalDate[0]);
+                        finalDateDialog.cancel();
+                        break;
+                    case ("end"):
+                        endTime.setText(finalDate[0]);
+                        finalDateDialog.cancel();
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        new sendActivity().execute("adminRep");
+    }
+
+
 
     View.OnClickListener createActivity = new View.OnClickListener() {
         @Override
@@ -98,6 +180,11 @@ public class createActivityForOrgActivity extends AppCompatActivity {
             MultipartEntity multipartEntity = new MultipartEntity();
             action = params[0];
             switch (action) {
+                case "adminRep":
+                    multipartEntity.addPart("code", "getAdminRep");
+                    multipartEntity.addPart("idOrg", getIntent().getStringExtra("idOrg"));
+                    httpPost.setEntity(multipartEntity);
+                    break;
                 case "checkAdmin":
                     multipartEntity.addPart("code", "checkAdmin");
                     multipartEntity.addPart("admin", admin.getText().toString());
@@ -115,6 +202,8 @@ public class createActivityForOrgActivity extends AppCompatActivity {
                     multipartEntity.addPart("name", activName.getText().toString());
                     multipartEntity.addPart("descript", activDesc.getText().toString());
                     multipartEntity.addPart("idOrg", getIntent().getStringExtra("idOrg"));
+                    multipartEntity.addPart("startDate", startTime.getText().toString());
+                    multipartEntity.addPart("endDate", endTime.getText().toString());
                     httpPost.setEntity(multipartEntity);
                     break;
                 default:
@@ -136,12 +225,14 @@ public class createActivityForOrgActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
+            dialog.closeDialog();
             switch (action) {
                 case "checkAdmin":
                     try {
@@ -178,6 +269,23 @@ public class createActivityForOrgActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     break;
+                case "adminRep":
+                    try{
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.get("success").equals("1")){
+                            rep.setText(jsonObject.get("repLogin").toString());
+                            admin.setText(jsonObject.get("adminLogin").toString());
+                        } else {
+                            Toast toast = new Toast(createActivityForOrgActivity.this);
+                            toast.setText("Непредвиденная ошибка, попробуйте позже");
+                            toast.show();
+                            finish();
+                        }
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
             }
         }
 

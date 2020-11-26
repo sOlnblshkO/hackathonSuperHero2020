@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomStuff.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.mainFiles.createActivityForOrgActivity;
@@ -55,6 +56,7 @@ public class superAdminOrgs extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private static ArrayList<orgsData> myOrgs;
     Button createOrg;
+    MyCustomDialog dialog;
 
     public static superAdminOrgs newInstance() {
         return new superAdminOrgs();
@@ -66,6 +68,8 @@ public class superAdminOrgs extends Fragment {
         View view = inflater.inflate(R.layout.super_admin_orgs_fragment, container, false);
 
         sPref = getActivity().getSharedPreferences("app", Context.MODE_PRIVATE);
+
+        dialog = new MyCustomDialog(getActivity());
 
         recyclerView = view.findViewById(R.id.recyclerViewSuperAdminOrgs);
         recyclerView.setHasFixedSize(true);
@@ -231,12 +235,14 @@ public class superAdminOrgs extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
+            dialog.closeDialog();
             try {
                 JSONObject jsonObject = new JSONObject(response);
                 if (jsonObject.get("success").toString().equals("1")){

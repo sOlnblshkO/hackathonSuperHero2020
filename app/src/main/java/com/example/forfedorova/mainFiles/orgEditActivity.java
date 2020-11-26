@@ -16,14 +16,18 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
+import com.example.forfedorova.administrator.activities.activitiesFragment;
 import com.example.forfedorova.superAdmin.ui.profile.organizations.superAdminOrgs;
 
 import org.apache.http.HttpEntity;
@@ -103,6 +107,7 @@ public class orgEditActivity extends AppCompatActivity {
             public TextView nameTextView, descTextView, activIdTextView1, activAdminText1, activPreText1;
             public Button addBtn;
             CardView cv;
+            ImageButton optBtn;
             public ActivitiesViewHolder(View v) {
                 super(v);
                 cv = v.findViewById(R.id.activityCard);
@@ -124,7 +129,7 @@ public class orgEditActivity extends AppCompatActivity {
                 activAdminText1 = v.findViewById(R.id.activAdminText);
                 activPreText1 = v.findViewById(R.id.activPreText);
                 addBtn = v.findViewById(R.id.addPartBtn);
-
+                optBtn = v.findViewById(R.id.optImage);
 
                 addBtn.setOnClickListener(new View.OnClickListener(){
 
@@ -143,12 +148,32 @@ public class orgEditActivity extends AppCompatActivity {
             this.mDataset = mDataset;
         }
         @Override
-        public void onBindViewHolder(ActivitiesViewHolder holder, int i) {
+        public void onBindViewHolder(final ActivitiesViewHolder holder, int i) {
             holder.nameTextView.setText(mDataset.get(i).name);
             holder.descTextView.setText(mDataset.get(i).desc);
             holder.activPreText1.setText("Представитель " + mDataset.get(i).preLogin);
             holder.activAdminText1.setText("Администратор " + mDataset.get(i).adminLogin);
             holder.activIdTextView1.setText(String.valueOf(mDataset.get(i).id));
+            holder.optBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    PopupMenu popupMenu = new PopupMenu(orgEditActivity.this, v);
+                    popupMenu.inflate(R.menu.menu_for_activity);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.optStat:
+                                    activityId = holder.activIdTextView1.getText().toString();
+                                    new getActivites().execute("getStat");
+                                    return true;
+                            }
+                            return false;
+                        }
+                    });
+                    popupMenu.show();
+                }
+            });
         }
 
         @Override
