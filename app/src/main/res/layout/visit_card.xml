@@ -34,6 +34,21 @@
                 android:text="descOfActivity"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/visitStartDateText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="startDate"
+                android:layout_marginLeft="8dp"/>
+
+            <TextView
+                android:id="@+id/visitEndDateText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="endDate"
+                android:layout_marginLeft="8dp"/>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

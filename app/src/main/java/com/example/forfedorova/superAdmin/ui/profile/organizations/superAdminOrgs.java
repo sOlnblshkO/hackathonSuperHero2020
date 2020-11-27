@@ -22,9 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.forfedorova.CustomStuff.MyCustomDialog;
+import com.example.forfedorova.CustomClasses.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.mainFiles.createActivityForOrgActivity;
@@ -124,16 +123,6 @@ public class superAdminOrgs extends Fragment {
             public OrgViewHolder(View v) {
                 super(v);
                 cv = v.findViewById(R.id.orgCard);
-                Random rnd = new Random();
-                ArrayList<Integer> colors = new ArrayList<>();
-                int colorRed = Color.argb(255, 255, 128, 0);
-                int colorGreen = Color.argb(255, 0, 255, 0);
-                int colorBlue = Color.argb(255, 66, 145, 255);
-                colors.add(colorRed);
-                colors.add(colorGreen);
-                colors.add(colorBlue);
-
-                cv.setBackgroundColor(colors.get(rnd.nextInt(3)));
 
                 nameTextView = v.findViewById(R.id.orgNameTextView);
                 descTextView = v.findViewById(R.id.orgDescTextView);
@@ -160,6 +149,7 @@ public class superAdminOrgs extends Fragment {
                     public void onClick(View v) {
                         Intent editInt = new Intent(getActivity(), orgEditActivity.class);
                         editInt.putExtra("idOrg", orgIdTextView.getText().toString());
+                        editInt.putExtra("nameOrg", nameTextView.getText().toString());
                         startActivity(editInt);
                     }
                 });

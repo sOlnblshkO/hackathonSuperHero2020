@@ -5,11 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.JsonReader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -18,12 +16,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.forfedorova.CustomStuff.MyCustomDialog;
+import com.example.forfedorova.CustomClasses.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
-import com.example.forfedorova.administrator.adminMenuActivity;
-import com.example.forfedorova.schoolkid.ui.schoolKidMenuActivity;
-import com.example.forfedorova.superAdmin.superAdminActivity;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -34,7 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.DateFormat;
 
 public class createActivityForOrgActivity extends AppCompatActivity {
 

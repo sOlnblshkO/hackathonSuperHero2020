@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomClasses.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.administrator.adminMenuActivity;
@@ -36,11 +37,14 @@ public class addVisitorsActivity extends AppCompatActivity {
 
     EditText idEdit;
     Button addVisitorBtn;
+    MyCustomDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_visitors);
+
+        dialog = new MyCustomDialog(addVisitorsActivity.this, "Отправка данных!");
 
         idEdit = findViewById(R.id.visitorIdEdit);
         addVisitorBtn = findViewById(R.id.addVisitorBtn);
@@ -86,7 +90,8 @@ public class addVisitorsActivity extends AppCompatActivity {
                 case "addVis":
                     multipartEntity.addPart("code", "addVis");
                     multipartEntity.addPart("idUser", idEdit.getText().toString());
-                    multipartEntity.addPart("idActiv", getIntent().getStringExtra("idActiv"));
+                    String id = getIntent().getStringExtra("idActiv");
+                    multipartEntity.addPart("idActiv", id);
                     httpPost.setEntity(multipartEntity);
                     break;
                 default:
@@ -108,12 +113,14 @@ public class addVisitorsActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
+            dialog.closeDialog();
             try {
                 JSONObject jsonObject = new JSONObject(response);
                 if (jsonObject.getString("success").equals("1")) {

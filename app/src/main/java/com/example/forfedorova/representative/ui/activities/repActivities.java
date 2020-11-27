@@ -1,13 +1,11 @@
 package com.example.forfedorova.representative.ui.activities;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -29,9 +27,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomClasses.ActivityUnit;
+import com.example.forfedorova.CustomClasses.MyColors;
+import com.example.forfedorova.CustomClasses.MyCustomDialog;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
-import com.example.forfedorova.administrator.activities.activitiesFragment;
 import com.example.forfedorova.mainFiles.addVisitorsActivity;
 
 import org.apache.http.HttpEntity;
@@ -44,7 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -61,15 +64,19 @@ public class repActivities extends Fragment {
     SharedPreferences sPref;
 
     TextView emptyOrgs;
-    ArrayList<activityClass> myActivities = new ArrayList<>();
+    ArrayList<ActivityUnit> myActivities = new ArrayList<>();
     RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     String activityId = "-1";
+
+    MyCustomDialog dialog;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.rep_activities_fragment, container, false);
+
+        dialog = new MyCustomDialog(getContext());
 
         emptyOrgs = view.findViewById(R.id.emptyActivRepText);
         recyclerView = view.findViewById(R.id.repActivRecycler);
@@ -92,19 +99,7 @@ public class repActivities extends Fragment {
     }
 
 
-    public class activityClass {
-        String name, desc, adminLogin, preLogin;
-        int id;
 
-        public activityClass(String name, String desc, int id, String adminLogin, String preLogin) {
-            this.name = name;
-            this.desc = desc;
-            this.id = id;
-            this.adminLogin = adminLogin;
-            this.preLogin = preLogin;
-        }
-
-    }
 
     public void loadActivities() {
         activitiesAdapter ma = new activitiesAdapter(myActivities);
@@ -112,11 +107,11 @@ public class repActivities extends Fragment {
     }
 
     public class activitiesAdapter extends RecyclerView.Adapter<activitiesAdapter.ActivitiesViewHolder> {
-        private List<activityClass> mDataset;
+        private List<ActivityUnit> mDataset;
 
         public class ActivitiesViewHolder extends RecyclerView.ViewHolder {
             // each data item is just a string in this case
-            public TextView nameTextView, descTextView, activIdTextView1, activAdminText1, activPreText1;
+            public TextView nameTextView, descTextView, activAdminText1, activPreText1, startDateText, endDateText;
             public Button addBtn;
             ImageButton mImageButton;
             CardView cv;
@@ -124,49 +119,56 @@ public class repActivities extends Fragment {
                 super(v);
                 cv = v.findViewById(R.id.activityCard);
 
-                Random rnd = new Random();
-                ArrayList<Integer> colors = new ArrayList<>();
-                int colorRed = Color.argb(255, 255, 128, 0);
-                int colorGreen = Color.argb(255, 0, 255, 0);
-                int colorBlue = Color.argb(255, 66, 145, 255);
-                colors.add(colorRed);
-                colors.add(colorGreen);
-                colors.add(colorBlue);
-
-                cv.setBackgroundColor(colors.get(rnd.nextInt(3)));
-
                 nameTextView = v.findViewById(R.id.nameOfActivText);
                 descTextView = v.findViewById(R.id.descOfActivText);
-                activIdTextView1 = v.findViewById(R.id.activIdText);
                 activAdminText1 = v.findViewById(R.id.activAdminText);
                 activPreText1 = v.findViewById(R.id.activPreText);
                 addBtn = v.findViewById(R.id.addPartBtn);
 
-                addBtn.setOnClickListener(new View.OnClickListener(){
 
-                    @Override
-                    public void onClick(View v) {
-                        Intent addVisIntent = new Intent(getActivity(), addVisitorsActivity.class);
-                        addVisIntent.putExtra("idActiv", activIdTextView1.getText().toString());
-                        startActivity(addVisIntent);
-                    }
-                });
                 mImageButton = v.findViewById(R.id.optImage);
                 mImageButton.setVisibility(View.INVISIBLE);
+
+                startDateText = v.findViewById(R.id.startDateText);
+                endDateText = v.findViewById(R.id.endDateText);
 
             }
         }
 
-        public activitiesAdapter(List<activityClass> mDataset) {
+        public activitiesAdapter(List<ActivityUnit> mDataset) {
             this.mDataset = mDataset;
         }
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
-        public void onBindViewHolder(activitiesAdapter.ActivitiesViewHolder holder, int i) {
+        public void onBindViewHolder(activitiesAdapter.ActivitiesViewHolder holder, final int i) {
             holder.nameTextView.setText(mDataset.get(i).name);
             holder.descTextView.setText(mDataset.get(i).desc);
             holder.activPreText1.setText("Представитель " + mDataset.get(i).preLogin);
             holder.activAdminText1.setText("Администратор " + mDataset.get(i).adminLogin);
-            holder.activIdTextView1.setText(String.valueOf(mDataset.get(i).id));
+            holder.startDateText.setText(mDataset.get(i).startDate);
+            holder.endDateText.setText(mDataset.get(i).endDate);
+            holder.addBtn.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    Intent addVisIntent = new Intent(getActivity(), addVisitorsActivity.class);
+                    addVisIntent.putExtra("idActiv", mDataset.get(i).id);
+                    startActivity(addVisIntent);
+                }
+            });
+            try {
+                Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(mDataset.get(i).startDate);
+                Date date2 = new SimpleDateFormat("yyyy-MM-dd").parse(mDataset.get(i).endDate);
+                Date dateNow = new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(LocalDate.now()));
+                MyColors myColors = new MyColors();
+                if (dateNow.compareTo(date1) < 0) {
+                    holder.cv.setBackgroundColor(myColors.colorBlue);
+                } else if (dateNow.compareTo(date2) > 0) {
+                    holder.cv.setBackgroundColor(myColors.colorRed);
+                } else {
+                    holder.cv.setBackgroundColor(myColors.colorGreen);
+                }
+            } catch (Exception e){}
         }
 
         @Override
@@ -229,6 +231,7 @@ public class repActivities extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.createDialog();
         }
 
 
@@ -236,7 +239,7 @@ public class repActivities extends Fragment {
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
-            Toast.makeText(getActivity(),response,Toast.LENGTH_SHORT).show();
+            dialog.closeDialog();
             switch (action) {
                 case "getActivByRep":
                     try {
@@ -246,11 +249,13 @@ public class repActivities extends Fragment {
                             JSONArray jsonArray = jsonObject.getJSONArray("activities");
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject activity = jsonArray.getJSONObject(i);
-                                myActivities.add(new activityClass(activity.getString("name"),
+                                myActivities.add(new ActivityUnit(activity.getString("name"),
                                         activity.getString("desc"),
                                         Integer.valueOf(activity.getString("id")),
                                         activity.getString("logAdmin"),
-                                        activity.getString("logRep")));
+                                        activity.getString("logRep"),
+                                        activity.getString("startDate"),
+                                        activity.getString("endDate")));
                             }
                             loadActivities();
                         } else {

@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.forfedorova.CustomClasses.ActivityUnit;
+import com.example.forfedorova.CustomClasses.MyColors;
 import com.example.forfedorova.MultipartEntity;
 import com.example.forfedorova.R;
 import com.example.forfedorova.mainFiles.addVisitorsActivity;
@@ -46,7 +47,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -55,7 +59,7 @@ public class activitiesFragment extends Fragment {
     private ActivitiesViewModel mViewModel;
 
     TextView emptyOrgs;
-    ArrayList<activityClass> myActivities = new ArrayList<>();
+    ArrayList<ActivityUnit> myActivities = new ArrayList<>();
     RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     String activityId = "-1";
@@ -91,20 +95,6 @@ public class activitiesFragment extends Fragment {
         // TODO: Use the ViewModel
     }
 
-    public class activityClass {
-        String name, desc, adminLogin, preLogin;
-        int id;
-
-        public activityClass(String name, String desc, int id, String adminLogin, String preLogin) {
-            this.name = name;
-            this.desc = desc;
-            this.id = id;
-            this.adminLogin = adminLogin;
-            this.preLogin = preLogin;
-        }
-
-    }
-
 
     public void loadActivities() {
         activitiesAdapter ma = new activitiesAdapter(myActivities);
@@ -115,12 +105,12 @@ public class activitiesFragment extends Fragment {
 
 
     public class activitiesAdapter extends RecyclerView.Adapter<activitiesAdapter.ActivitiesViewHolder> {
-        private List<activityClass> mDataset;
+        private List<ActivityUnit> mDataset;
 
 
         public class ActivitiesViewHolder extends RecyclerView.ViewHolder {
             // each data item is just a string in this case
-            public TextView nameTextView, descTextView, activIdTextView1, activAdminText1, activPreText1;
+            public TextView nameTextView, descTextView, activAdminText1, activPreText1, startDate, endDate;
             public Button addBtn;
             ImageButton mImageButton;
             CardView cv;
@@ -128,33 +118,14 @@ public class activitiesFragment extends Fragment {
                 super(v);
                 cv = v.findViewById(R.id.activityCard);
 
-                Random rnd = new Random();
-                ArrayList<Integer> colors = new ArrayList<>();
-                int colorRed = Color.argb(255, 255, 128, 0);
-                int colorGreen = Color.argb(255, 0, 255, 0);
-                int colorBlue = Color.argb(255, 66, 145, 255);
-                colors.add(colorRed);
-                colors.add(colorGreen);
-                colors.add(colorBlue);
-
-                cv.setBackgroundColor(colors.get(rnd.nextInt(3)));
-
                 nameTextView = v.findViewById(R.id.nameOfActivText);
                 descTextView = v.findViewById(R.id.descOfActivText);
-                activIdTextView1 = v.findViewById(R.id.activIdText);
                 activAdminText1 = v.findViewById(R.id.activAdminText);
                 activPreText1 = v.findViewById(R.id.activPreText);
                 addBtn = v.findViewById(R.id.addPartBtn);
+                startDate = v.findViewById(R.id.startDateText);
+                endDate = v.findViewById(R.id.endDateText);
 
-                addBtn.setOnClickListener(new View.OnClickListener(){
-
-                    @Override
-                    public void onClick(View v) {
-                        Intent addVisIntent = new Intent(getActivity(), addVisitorsActivity.class);
-                        addVisIntent.putExtra("idActiv", activIdTextView1.getText().toString());
-                        startActivity(addVisIntent);
-                    }
-                });
 
                 mImageButton = v.findViewById(R.id.optImage);
 
@@ -162,17 +133,19 @@ public class activitiesFragment extends Fragment {
             }
         }
 
-        public activitiesAdapter(List<activityClass> mDataset) {
+        public activitiesAdapter(List<ActivityUnit> mDataset) {
             this.mDataset = mDataset;
         }
 
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         public void onBindViewHolder(final activitiesAdapter.ActivitiesViewHolder holder, final int i) {
             holder.nameTextView.setText(mDataset.get(i).name);
             holder.descTextView.setText(mDataset.get(i).desc);
             holder.activPreText1.setText("Представитель " + mDataset.get(i).preLogin);
             holder.activAdminText1.setText("Администратор " + mDataset.get(i).adminLogin);
-            holder.activIdTextView1.setText(String.valueOf(mDataset.get(i).id));
+            holder.endDate.setText(mDataset.get(i).endDate);
+            holder.startDate.setText(mDataset.get(i).startDate);
             holder.mImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
@@ -183,7 +156,7 @@ public class activitiesFragment extends Fragment {
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.optStat:
-                                    activityId = holder.activIdTextView1.getText().toString();
+                                    activityId = String.valueOf(mDataset.get(i).id);
                                     new getActivites().execute("getStat");
                                     Toast.makeText(getContext(), "Статистика", Toast.LENGTH_SHORT).show();
                                     return true;
@@ -194,6 +167,29 @@ public class activitiesFragment extends Fragment {
                     popupMenu.show();
                 }
             });
+            holder.addBtn.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    Intent addVisIntent = new Intent(getActivity(), addVisitorsActivity.class);
+                    addVisIntent.putExtra("idActiv", String.valueOf(mDataset.get(i).id));
+                    startActivity(addVisIntent);
+                }
+            });
+
+            try {
+                Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(mDataset.get(i).startDate);
+                Date date2 = new SimpleDateFormat("yyyy-MM-dd").parse(mDataset.get(i).endDate);
+                Date dateNow = new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(LocalDate.now()));
+                MyColors myColors = new MyColors();
+                if (dateNow.compareTo(date1) < 0) {
+                    holder.cv.setBackgroundColor(myColors.colorBlue);
+                } else if (dateNow.compareTo(date2) > 0) {
+                    holder.cv.setBackgroundColor(myColors.colorRed);
+                } else {
+                    holder.cv.setBackgroundColor(myColors.colorGreen);
+                }
+            } catch (Exception e){}
         }
 
         @Override
@@ -268,7 +264,6 @@ public class activitiesFragment extends Fragment {
         @Override
         protected void onPostExecute(Void s) {
             super.onPostExecute(s);
-            Toast.makeText(getActivity(),response,Toast.LENGTH_SHORT).show();
             switch (action) {
                 case "getActivByAdmin":
                     try {
@@ -278,11 +273,13 @@ public class activitiesFragment extends Fragment {
                             JSONArray jsonArray = jsonObject.getJSONArray("activities");
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject activity = jsonArray.getJSONObject(i);
-                                myActivities.add(new activityClass(activity.getString("name"),
+                                myActivities.add(new ActivityUnit(activity.getString("name"),
                                         activity.getString("desc"),
                                         Integer.valueOf(activity.getString("id")),
                                         activity.getString("logAdmin"),
-                                        activity.getString("logRep")));
+                                        activity.getString("logRep"),
+                                        activity.getString("startDate"),
+                                        activity.getString("endDate")));
                             }
                             loadActivities();
                         } else {

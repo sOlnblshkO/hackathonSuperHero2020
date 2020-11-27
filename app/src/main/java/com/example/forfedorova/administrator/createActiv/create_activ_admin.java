@@ -94,16 +94,6 @@ public class create_activ_admin extends Fragment {
             public OrgViewHolder(View v) {
                 super(v);
                 cv = v.findViewById(R.id.adminOrgCard);
-                Random rnd = new Random();
-                ArrayList<Integer> colors = new ArrayList<>();
-                int colorRed = Color.argb(255, 255, 128, 0);
-                int colorGreen = Color.argb(255, 0, 255, 0);
-                int colorBlue = Color.argb(255, 66, 145, 255);
-                colors.add(colorRed);
-                colors.add(colorGreen);
-                colors.add(colorBlue);
-
-                cv.setBackgroundColor(colors.get(rnd.nextInt(3)));
 
                 nameTextView = v.findViewById(R.id.adminOrgNameText);
                 descTextView = v.findViewById(R.id.adminOrgDescText);

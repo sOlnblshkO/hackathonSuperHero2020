@@ -54,15 +54,25 @@
                 android:textStyle="bold" android:layout_below="@id/activAdminText"/>
 
             <TextView
-                android:id="@+id/activIdText"
+                android:id="@+id/startDateText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="invisible" android:layout_below="@+id/activPreText"/>
+                android:layout_below="@+id/activPreText"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginRight="0dp"
+                android:text="startDate" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/activIdText">
+                android:layout_below="@+id/endDateText"
+                android:layout_marginTop="0dp">
 
                 <Button
                     android:id="@+id/addPartBtn"
@@ -93,6 +103,23 @@
                 android:layout_marginRight="8dp"
                 android:src="@drawable/ic_more_vert_black_24dp"
                 android:background="@null"/>
+
+            <TextView
+                android:id="@+id/endDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/startDateText"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginRight="0dp"
+                android:text="endDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/startDateText" />
 
         </RelativeLayout>
 
